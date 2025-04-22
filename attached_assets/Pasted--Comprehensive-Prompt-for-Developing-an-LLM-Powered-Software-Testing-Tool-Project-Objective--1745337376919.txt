@@ -1,0 +1,92 @@
+# Comprehensive Prompt for Developing an LLM-Powered Software Testing Tool
+
+## Project Objective
+I need to create a Software Testing Tool that uses Grok 3 API to automatically generate comprehensive test cases from JavaScript/TypeScript code and specifications. The tool should analyze source code, extract function information, match specifications to functions, and generate both whitebox and blackbox test cases.
+
+## Key Requirements
+- Parse JavaScript/TypeScript code to extract functions, classes, and modules
+- Match specifications to code elements (with human supervision when needed)
+- Use Grok 3 API to generate whitebox tests (statement, block, condition, path coverage)
+- Generate blackbox tests based on specifications (BVA and ECP)
+- Output organized test files and automation configuration (package.json, GitHub Actions)
+
+## Core Architecture
+
+```
+Input Processor → Code Analyzer → LLM Orchestrator → Test Generator → Output Formatter
+```
+
+## Implementation Steps 
+
+1. Set up a Python project with the following structure:
+   - `main.py`: Entry point with CLI interface
+   - `input_processor.py`: Handle file reading and organization
+   - `code_analyzer.py`: Parse JavaScript/TypeScript code
+   - `grok_api.py`: Interface with Grok 3 API
+   - `spec_matcher.py`: Match specifications to functions
+   - `test_generator.py`: Generate test cases
+   - `output_formatter.py`: Create test files and automation
+
+2. Implement an AST parser to extract information from JavaScript/TypeScript code
+   - Need to identify functions, parameters, return types, and control flow
+   - Calculate complexity metrics for guiding test generation
+
+3. Create a Grok 3 API client that manages:
+   - Authentication and rate limiting
+   - Prompt construction for various test types
+   - Response parsing and error handling
+
+4. Design prompts for LLM test generation:
+   - Whitebox tests should focus on specific coverage criteria
+   - Blackbox tests should leverage specifications for boundary and equivalence analysis
+   - All output should be formatted for Jest testing framework
+
+5. Create a simple CLI interface:
+   ```
+   python main.py --project /path/to/project --specs /path/to/specs.txt --output /path/to/output
+   ```
+
+6. Add human verification steps for:
+   - Confirming specification-to-function mappings
+   - Reviewing generated tests
+   - Approving final output
+
+## Key Components
+
+1. **InputProcessor**: Read files, validate inputs, organize code files, parse specifications
+2. **CodeAnalyzer**: Extract functions, build control flow graphs, identify conditions and paths
+3. **SpecificationMatcher**: Match specifications to functions using name similarity and LLM
+4. **GrokAPI**: Interface with Grok 3, handle requests/responses, implement retry logic
+5. **TestGenerator**: Create prompts, process responses, generate different test types
+6. **OutputFormatter**: Organize test files, create automation configuration, generate reports
+
+## LLM Integration Details
+
+Prompts to Grok 3 API should:
+- Include complete function code 
+- Provide specification details
+- Specify coverage criteria or blackbox test type
+- Request Jest-compatible test code
+- Include examples and constraints for output format
+
+## Implementation Considerations
+
+- Use Python 3.8+ for implementation
+- Leverage libraries like `esprima` or `acorn` for JavaScript parsing
+- Consider `ast` module for simpler parsing needs
+- Use `requests` for API communication
+- Implement caching to reduce API calls
+- Add progress tracking for long-running operations
+- Include detailed logging for debugging
+
+## Example Use Case Flow
+
+1. User runs tool with project and specification file
+2. Tool extracts functions and parses specifications
+3. Tool presents initial specification-to-function mappings for verification
+4. User confirms or adjusts mappings
+5. Tool generates test cases for each function using Grok 3 API
+6. User reviews and approves generated tests
+7. Tool outputs final test suite and automation files
+
+Start by implementing the core components (InputProcessor, CodeAnalyzer, GrokAPI) before moving to more complex parts. Focus on getting a simple end-to-end workflow working with a single test type, then expand to the full feature set.
