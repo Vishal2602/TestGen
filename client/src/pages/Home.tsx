@@ -544,25 +544,136 @@ export default function Home() {
             </TabsContent>
           </Tabs>
           
-          {/* Download Package */}
-          <div className="mt-6 bg-muted/30 p-4 rounded-lg">
-            <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-              <div>
-                <h3 className="font-medium">Download Complete Test Package</h3>
-                <p className="text-sm text-muted-foreground">Includes all test files and configuration for Jest</p>
+          {/* Download Options */}
+          <div className="mt-6 space-y-4">
+            <h3 className="font-medium">Download Options</h3>
+            
+            {/* Test Package */}
+            <div className="bg-muted/30 p-4 rounded-lg">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+                <div>
+                  <h4 className="font-medium">Complete Test Package</h4>
+                  <p className="text-sm text-muted-foreground">Includes all test files and configuration for Jest</p>
+                </div>
+                <Button 
+                  className="md:self-end"
+                  onClick={() => downloadMutation.mutate()}
+                  disabled={downloadMutation.isPending}
+                >
+                  {downloadMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Download className="mr-2 h-4 w-4" />
+                  )}
+                  Download Package
+                </Button>
               </div>
-              <Button 
-                className="md:self-end"
-                onClick={() => downloadMutation.mutate()}
-                disabled={downloadMutation.isPending}
-              >
-                {downloadMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Download className="mr-2 h-4 w-4" />
-                )}
-                Download Package
-              </Button>
+            </div>
+            
+            {/* Automation Files */}
+            <div className="bg-muted/30 p-4 rounded-lg">
+              <div className="mb-4">
+                <h4 className="font-medium">Automation Files</h4>
+                <p className="text-sm text-muted-foreground">Generate files for test automation in different environments</p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="border border-border rounded-lg p-3 bg-white">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileJson className="h-5 w-5 text-blue-500" />
+                    <h5 className="font-medium">package.json</h5>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Jest configuration for running tests locally with npm
+                  </p>
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => handleDownloadAutomation('package_json')}
+                    disabled={automationMutation.isPending}
+                  >
+                    {automationMutation.isPending && automationMutation.variables === 'package_json' ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-3 w-3" />
+                    )}
+                    Download
+                  </Button>
+                </div>
+                
+                <div className="border border-border rounded-lg p-3 bg-white">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Terminal className="h-5 w-5 text-green-500" />
+                    <h5 className="font-medium">Shell Script</h5>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Bash script to install dependencies and run tests
+                  </p>
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => handleDownloadAutomation('shell_script')}
+                    disabled={automationMutation.isPending}
+                  >
+                    {automationMutation.isPending && automationMutation.variables === 'shell_script' ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-3 w-3" />
+                    )}
+                    Download
+                  </Button>
+                </div>
+                
+                <div className="border border-border rounded-lg p-3 bg-white">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Github className="h-5 w-5 text-slate-700" />
+                    <h5 className="font-medium">GitHub Actions</h5>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Workflow file for GitHub Actions CI pipeline
+                  </p>
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => handleDownloadAutomation('github_actions')}
+                    disabled={automationMutation.isPending}
+                  >
+                    {automationMutation.isPending && automationMutation.variables === 'github_actions' ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-3 w-3" />
+                    )}
+                    Download
+                  </Button>
+                </div>
+                
+                <div className="border border-border rounded-lg p-3 bg-white">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Box className="h-5 w-5 text-blue-600" />
+                    <h5 className="font-medium">Dockerfile</h5>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Docker configuration to run tests in containers
+                  </p>
+                  <Button 
+                    size="sm" 
+                    className="w-full"
+                    variant="outline"
+                    onClick={() => handleDownloadAutomation('dockerfile')}
+                    disabled={automationMutation.isPending}
+                  >
+                    {automationMutation.isPending && automationMutation.variables === 'dockerfile' ? (
+                      <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Download className="mr-2 h-3 w-3" />
+                    )}
+                    Download
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
