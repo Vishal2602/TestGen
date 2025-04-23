@@ -12,6 +12,14 @@ interface GrokTestGenerationParams {
   testType: 'whitebox' | 'blackbox' | 'both';
 }
 
+interface CoverageMetrics {
+  statementCoverage: number;
+  branchCoverage: number;
+  pathCoverage: number;
+  boundaryValuesCovered: number;
+  edgeCasesCovered: number;
+}
+
 /**
  * Generates test cases using Grok API
  */
@@ -23,6 +31,7 @@ export async function generateTestCases({
 }: GrokTestGenerationParams): Promise<{
   testCode: string;
   testCount: number;
+  coverage: CoverageMetrics;
 }> {
   try {
     // Construct prompt based on test type and available specs
@@ -62,6 +71,18 @@ describe('${functionName}', () => {
 });
 \`\`\`
 
+In addition to generating the code, please provide a coverage analysis in JSON format at the end of your response, like this:
+
+\`\`\`json
+{
+  "statementCoverage": 90, // percentage of statements covered
+  "branchCoverage": 85, // percentage of branches covered
+  "pathCoverage": 75, // percentage of paths covered
+  "boundaryValuesCovered": 4, // number of boundary values tested
+  "edgeCasesCovered": 3 // number of edge cases tested
+}
+\`\`\`
+
 Make sure to use appropriate Jest assertions (expect) and include comprehensive test cases that verify the function behavior.`;
 
     // Call Grok API
@@ -84,17 +105,54 @@ Make sure to use appropriate Jest assertions (expect) and include comprehensive 
     // Extract test code from response
     const generatedText = response.choices[0].message.content || '';
     
-    // Extract code block 
+    // Extract code block for the test code
     const codeRegex = /```(?:javascript|typescript)?\s*([\s\S]*?)```/;
-    const match = generatedText.match(codeRegex);
-    let testCode = match ? match[1].trim() : generatedText;
+    const codeMatch = generatedText.match(codeRegex);
+    let testCode = codeMatch ? codeMatch[1].trim() : '';
+    
+    // Extract JSON coverage metrics
+    const jsonRegex = /```json\s*([\s\S]*?)```/;
+    const jsonMatch = generatedText.match(jsonRegex);
+    
+    // Default coverage metrics
+    let coverage: CoverageMetrics = {
+      statementCoverage: 0,
+      branchCoverage: 0,
+      pathCoverage: 0,
+      boundaryValuesCovered: 0,
+      edgeCasesCovered: 0
+    };
+    
+    // Parse coverage metrics if found
+    if (jsonMatch) {
+      try {
+        // Remove comments from JSON string
+        const jsonStr = jsonMatch[1].replace(/\/\/.*$/gm, '').trim();
+        const parsedCoverage = JSON.parse(jsonStr);
+        coverage = {
+          statementCoverage: parsedCoverage.statementCoverage || 0,
+          branchCoverage: parsedCoverage.branchCoverage || 0,
+          pathCoverage: parsedCoverage.pathCoverage || 0,
+          boundaryValuesCovered: parsedCoverage.boundaryValuesCovered || 0,
+          edgeCasesCovered: parsedCoverage.edgeCasesCovered || 0
+        };
+      } catch (error) {
+        console.warn('Error parsing coverage metrics:', error);
+      }
+    }
+    
+    // If no test code was found, use full response
+    if (!testCode) {
+      testCode = generatedText;
+    }
     
     // Count test cases
     const testCount = (testCode.match(/test\(/g) || []).length;
     
     return {
       testCode,
-      testCount
+      testCount,
+      coverage
     };
   } catch (error) {
     console.error('Error calling Grok API:', error);

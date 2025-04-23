@@ -29,6 +29,14 @@ export interface TestGenerationStatus {
   estimatedTimeRemaining: string;
 }
 
+export interface CoverageMetrics {
+  statementCoverage: number;
+  branchCoverage: number;
+  pathCoverage: number;
+  boundaryValuesCovered: number;
+  edgeCasesCovered: number;
+}
+
 export interface GeneratedTest {
   id: string;
   functionName: string;
@@ -37,6 +45,7 @@ export interface GeneratedTest {
   testCode: string;
   testCount: number;
   types: string[];
+  coverage?: CoverageMetrics;
 }
 
 // API response types

@@ -89,7 +89,7 @@ export async function generateTests(files: UploadedFile[]): Promise<GenerateTest
           }
           
           // Generate tests
-          const { testCode, testCount } = await generateTestCases({
+          const { testCode, testCount, coverage } = await generateTestCases({
             functionCode: func.code,
             functionName: func.name,
             specification: functionSpec,
@@ -103,6 +103,7 @@ export async function generateTests(files: UploadedFile[]): Promise<GenerateTest
             testFileName,
             testCount,
             testTypes: ['whitebox', 'blackbox'],
+            coverage, // Save coverage metrics
             generated_at: new Date().toISOString()
           });
           
@@ -150,7 +151,8 @@ export async function generateTests(files: UploadedFile[]): Promise<GenerateTest
           testFileName: test.testFileName,
           testCode: test.testCode,
           testCount: test.testCount,
-          types: test.testTypes as string[]
+          types: test.testTypes as string[],
+          coverage: test.coverage as any // Forward coverage metrics to client
         };
       }),
       status: {...testGenerationState}

@@ -50,6 +50,7 @@ export const testFiles = pgTable("test_files", {
   testFileName: text("test_file_name").notNull(),
   testCount: integer("test_count").notNull(),
   testTypes: jsonb("test_types").notNull(), // Array of test types (e.g., 'whitebox', 'blackbox')
+  coverage: jsonb("coverage"), // Coverage metrics
   generated_at: text("generated_at").notNull(), // ISO date string
 });
 
