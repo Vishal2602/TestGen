@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, Code, FileText, Zap, Download, Loader2 } from 'lucide-react';
+import { AlertCircle, Code, FileText, Zap, Download, Loader2, Check } from 'lucide-react';
 import { FileDropzone } from '@/components/FileDropzone';
 import { FileCard } from '@/components/FileCard';
 import { GeneratedTestFile } from '@/components/GeneratedTestFile';
