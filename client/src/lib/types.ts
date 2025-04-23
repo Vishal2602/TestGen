@@ -70,21 +70,3 @@ export enum ProcessingStage {
   Completed = 'COMPLETED',
   Failed = 'FAILED'
 }
-
-// Session types
-export interface Session {
-  id: number;
-  name: string;
-  description?: string;
-  files: UploadedFile[];
-  extractedFunctions?: ExtractedFunction[];
-  generatedTests?: GeneratedTest[];
-  stats?: {
-    totalFiles: number;
-    totalFunctions: number;
-    totalTests: number;
-    averageCoverage?: number;
-  };
-  created_at: string | Date;
-  updated_at: string | Date;
-}

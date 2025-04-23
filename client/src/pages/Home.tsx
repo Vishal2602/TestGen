@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, Code, FileText, Zap, Download, Loader2, Check, Save } from 'lucide-react';
+import { AlertCircle, Code, FileText, Zap, Download, Loader2, Check } from 'lucide-react';
 import { FileDropzone } from '@/components/FileDropzone';
 import { FileCard } from '@/components/FileCard';
 import { GeneratedTestFile } from '@/components/GeneratedTestFile';
 import { CoverageDisplay } from '@/components/CoverageDisplay';
-import { SessionManager } from '@/components/SessionManager';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,8 +14,7 @@ import {
   ProcessingStage,
   TestGenerationStatus,
   GeneratedTest,
-  ExtractedFunction,
-  Session
+  ExtractedFunction
 } from '@/lib/types';
 import { analyzeCode, generateTests, getTestGenerationStatus, downloadTestPackage } from '@/lib/grokApi';
 
@@ -33,27 +31,6 @@ export default function Home() {
     apiCalls: 0,
     estimatedTimeRemaining: ''
   });
-  
-  // Session handlers
-  const handleLoadSession = (session: Session) => {
-    if (session.files && session.files.length > 0) {
-      toast({
-        title: "Session Loaded",
-        description: `Loaded session "${session.name}" with ${session.files.length} files`
-      });
-      
-      setFiles(session.files);
-      
-      if (session.extractedFunctions && session.extractedFunctions.length > 0) {
-        setExtractedFunctions(session.extractedFunctions);
-      }
-      
-      if (session.generatedTests && session.generatedTests.length > 0) {
-        setGeneratedTests(session.generatedTests);
-        setProcessingStage(ProcessingStage.Completed);
-      }
-    }
-  };
 
   // Status polling
   const { data: statusData } = useQuery<TestGenerationStatus>({
@@ -445,10 +422,6 @@ export default function Home() {
               <TabsTrigger value="testFiles">Test Files</TabsTrigger>
               <TabsTrigger value="coverage">Coverage</TabsTrigger>
               <TabsTrigger value="summary">Summary</TabsTrigger>
-              <TabsTrigger value="sessions">
-                <Save className="h-4 w-4 mr-2" />
-                Sessions
-              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="testFiles" className="space-y-4">
@@ -512,15 +485,6 @@ export default function Home() {
                   </div>
                 )}
               </div>
-            </TabsContent>
-            
-            <TabsContent value="sessions">
-              <SessionManager 
-                files={files} 
-                extractedFunctions={extractedFunctions} 
-                generatedTests={generatedTests}
-                onLoadSession={handleLoadSession}
-              />
             </TabsContent>
           </Tabs>
           
