@@ -43,11 +43,22 @@ export default function Home() {
     if (statusData) {
       setStatus(prev => ({...prev, ...statusData}));
       if (statusData.completed === statusData.total && statusData.total > 0) {
-        // When all tests are generated, fetch results
-        testGenerationMutation.mutate();
+        // When all tests are generated, fetch the final results
+        const fetchResults = async () => {
+          try {
+            const response = await generateTests(files);
+            setGeneratedTests(response.tests);
+            setProcessingStage(ProcessingStage.Completed);
+          } catch (error) {
+            console.error('Error fetching final results:', error);
+            setProcessingStage(ProcessingStage.Completed);
+          }
+        };
+        
+        fetchResults();
       }
     }
-  }, [statusData]);
+  }, [statusData, files]);
 
   // Check if we have at least one code file and one spec file
   const hasRequiredFiles = (): boolean => {
@@ -110,9 +121,13 @@ export default function Home() {
       return generateTests(files);
     },
     onSuccess: (data) => {
+      // Don't set completed state here since we're waiting for the polling
+      // to detect when all tests are generated
       setGeneratedTests(data.tests);
-      setStatus(data.status);
-      setProcessingStage(ProcessingStage.Completed);
+      setStatus(prev => ({...prev, ...data.status}));
+      
+      // Don't set the completed state here, let the statusData useEffect handle it
+      // when all tests are actually generated
     },
     onError: (error) => {
       toast({
