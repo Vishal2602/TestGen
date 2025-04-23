@@ -5,6 +5,7 @@ import { AlertCircle, Code, FileText, Zap, Download, Loader2, Check } from 'luci
 import { FileDropzone } from '@/components/FileDropzone';
 import { FileCard } from '@/components/FileCard';
 import { GeneratedTestFile } from '@/components/GeneratedTestFile';
+import { CoverageDisplay } from '@/components/CoverageDisplay';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -415,23 +416,59 @@ export default function Home() {
             </TabsContent>
             
             <TabsContent value="coverage">
-              <div className="p-4 bg-muted/30 rounded-lg text-center">
-                <p className="text-muted-foreground">
-                  Coverage visualization is not yet implemented
-                </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {generatedTests.some(test => test.coverage) ? (
+                  generatedTests.map(test => (
+                    <div key={test.id} className="bg-white rounded-lg border border-border overflow-hidden">
+                      <div className="bg-muted/30 p-3">
+                        <h3 className="font-medium">{test.functionName}</h3>
+                        <p className="text-xs text-muted-foreground">{test.fileName}</p>
+                      </div>
+                      <CoverageDisplay coverage={test.coverage} className="p-4" />
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 bg-muted/30 rounded-lg text-center col-span-full">
+                    <p className="text-muted-foreground">
+                      No coverage data available for the generated tests
+                    </p>
+                  </div>
+                )}
               </div>
             </TabsContent>
             
             <TabsContent value="summary">
-              <div className="p-4 bg-muted/30 rounded-lg">
-                <h3 className="font-medium mb-2">Test Generation Summary</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>Total functions analyzed: {extractedFunctions.length}</li>
-                  <li>Functions with specifications: {extractedFunctions.filter(f => f.hasSpec).length}</li>
-                  <li>Test files generated: {generatedTests.length}</li>
-                  <li>Total test cases: {generatedTests.reduce((sum, test) => sum + test.testCount, 0)}</li>
-                  <li>API calls made: {status.apiCalls}</li>
-                </ul>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 bg-muted/30 rounded-lg">
+                  <h3 className="font-medium mb-2">Test Generation Summary</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li>Total functions analyzed: {extractedFunctions.length}</li>
+                    <li>Functions with specifications: {extractedFunctions.filter(f => f.hasSpec).length}</li>
+                    <li>Test files generated: {generatedTests.length}</li>
+                    <li>Total test cases: {generatedTests.reduce((sum, test) => sum + test.testCount, 0)}</li>
+                    <li>API calls made: {status.apiCalls}</li>
+                  </ul>
+                </div>
+
+                {generatedTests.some(test => test.coverage) && (
+                  <div className="p-4 bg-white rounded-lg border border-border">
+                    <h3 className="font-medium mb-4">Average Coverage Metrics</h3>
+                    <CoverageDisplay 
+                      coverage={{
+                        statementCoverage: Math.round(generatedTests.reduce((sum, test) => 
+                          sum + (test.coverage?.statementCoverage || 0), 0) / generatedTests.length),
+                        branchCoverage: Math.round(generatedTests.reduce((sum, test) => 
+                          sum + (test.coverage?.branchCoverage || 0), 0) / generatedTests.length),
+                        pathCoverage: Math.round(generatedTests.reduce((sum, test) => 
+                          sum + (test.coverage?.pathCoverage || 0), 0) / generatedTests.length),
+                        boundaryValuesCovered: generatedTests.reduce((sum, test) => 
+                          sum + (test.coverage?.boundaryValuesCovered || 0), 0),
+                        edgeCasesCovered: generatedTests.reduce((sum, test) => 
+                          sum + (test.coverage?.edgeCasesCovered || 0), 0)
+                      }} 
+                    />
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
