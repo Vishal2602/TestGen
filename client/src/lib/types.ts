@@ -1,0 +1,63 @@
+// File types
+export interface UploadedFile {
+  id: string;
+  name: string;
+  content: string;
+  size: number;
+  type: 'js' | 'ts' | 'jsx' | 'tsx' | 'md' | 'unknown';
+  isSpecFile: boolean;
+  functionCount?: number;
+}
+
+// Code analysis types
+export interface ExtractedFunction {
+  id: string;
+  name: string;
+  code: string;
+  params: string[];
+  returnType?: string;
+  file: string;
+  hasSpec: boolean;
+}
+
+// Test generation types
+export interface TestGenerationStatus {
+  total: number;
+  completed: number;
+  inProgress: string | null;
+  apiCalls: number;
+  estimatedTimeRemaining: string;
+}
+
+export interface GeneratedTest {
+  id: string;
+  functionName: string;
+  fileName: string;
+  testFileName: string;
+  testCode: string;
+  testCount: number;
+  types: string[];
+}
+
+// API response types
+export interface AnalysisResponse {
+  functions: ExtractedFunction[];
+  specMatching: {
+    matchedCount: number;
+    totalFunctions: number;
+  };
+}
+
+export interface GenerateTestsResponse {
+  tests: GeneratedTest[];
+  status: TestGenerationStatus;
+}
+
+export enum ProcessingStage {
+  NotStarted = 'NOT_STARTED',
+  Analyzing = 'ANALYZING',
+  Matching = 'MATCHING',
+  Generating = 'GENERATING',
+  Completed = 'COMPLETED',
+  Failed = 'FAILED'
+}
