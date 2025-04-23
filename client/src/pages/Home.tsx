@@ -32,7 +32,7 @@ export default function Home() {
   });
 
   // Status polling
-  const { data: statusData } = useQuery({
+  const { data: statusData } = useQuery<TestGenerationStatus>({
     queryKey: ['/api/test-status'],
     enabled: processingStage === ProcessingStage.Generating,
     refetchInterval: 2000
@@ -40,7 +40,7 @@ export default function Home() {
 
   useEffect(() => {
     if (statusData) {
-      setStatus(statusData);
+      setStatus(prev => ({...prev, ...statusData}));
       if (statusData.completed === statusData.total && statusData.total > 0) {
         // When all tests are generated, fetch results
         testGenerationMutation.mutate();

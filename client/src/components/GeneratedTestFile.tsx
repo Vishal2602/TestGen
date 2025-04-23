@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Check, Copy, Download } from 'lucide-react';
+import { Check, Copy, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { GeneratedTest } from '@/lib/types';
+import { CoverageDisplay } from '@/components/CoverageDisplay';
 
 interface GeneratedTestFileProps {
   test: GeneratedTest;
@@ -10,6 +11,7 @@ interface GeneratedTestFileProps {
 
 export function GeneratedTestFile({ test }: GeneratedTestFileProps) {
   const [isCopied, setIsCopied] = useState(false);
+  const [showCoverage, setShowCoverage] = useState(false);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(test.testCode);
@@ -27,6 +29,10 @@ export function GeneratedTestFile({ test }: GeneratedTestFileProps) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+  
+  const toggleCoverage = () => {
+    setShowCoverage(!showCoverage);
   };
 
   return (
@@ -56,10 +62,28 @@ export function GeneratedTestFile({ test }: GeneratedTestFileProps) {
       <div className="p-4 bg-[#2d2d2d] max-h-96 overflow-y-auto">
         <pre className="text-sm text-white font-mono whitespace-pre-wrap">{test.testCode}</pre>
       </div>
-      <CardContent className="p-3 flex justify-between text-sm text-muted-foreground border-t border-border">
-        <span>Generated {test.types.join(' and ')} tests</span>
-        <span>{test.testCount} test cases</span>
+      <CardContent className="p-3 flex justify-between items-center text-sm text-muted-foreground border-t border-border">
+        <div className="flex items-center">
+          <span>Generated {test.types.join(' and ')} tests</span>
+          <span className="mx-2">•</span>
+          <span>{test.testCount} test cases</span>
+        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-7 px-2"
+          onClick={toggleCoverage}
+        >
+          <span className="mr-1">Coverage</span>
+          {showCoverage ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        </Button>
       </CardContent>
+      
+      {showCoverage && (
+        <div className="border-t border-border">
+          <CoverageDisplay coverage={test.coverage} className="p-4" />
+        </div>
+      )}
     </Card>
   );
 }
