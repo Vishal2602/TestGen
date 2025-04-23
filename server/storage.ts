@@ -7,7 +7,9 @@ import {
   type Function as CodeFunction,
   type InsertFunction,
   type TestFile,
-  type InsertTestFile
+  type InsertTestFile,
+  type Session,
+  type InsertSession
 } from "@shared/schema";
 
 // Modify the interface with CRUD methods
@@ -35,6 +37,13 @@ export interface IStorage {
   getTestById(id: number): Promise<TestFile | undefined>;
   getTestsByFunctionId(functionId: number): Promise<TestFile[]>;
   getAllTests(): Promise<TestFile[]>;
+  
+  // Session methods
+  createSession(session: InsertSession): Promise<Session>;
+  updateSession(id: number, session: Partial<InsertSession>): Promise<Session>;
+  getSessionById(id: number): Promise<Session | undefined>;
+  getAllSessions(): Promise<Session[]>;
+  deleteSession(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -42,20 +51,24 @@ export class MemStorage implements IStorage {
   private codeFiles: Map<number, CodeFile>;
   private functions: Map<number, CodeFunction>;
   private testFiles: Map<number, TestFile>;
+  private sessions: Map<number, Session>;
   private userIdCounter: number;
   private codeFileIdCounter: number;
   private functionIdCounter: number;
   private testFileIdCounter: number;
+  private sessionIdCounter: number;
 
   constructor() {
     this.users = new Map();
     this.codeFiles = new Map();
     this.functions = new Map();
     this.testFiles = new Map();
+    this.sessions = new Map();
     this.userIdCounter = 1;
     this.codeFileIdCounter = 1;
     this.functionIdCounter = 1;
     this.testFileIdCounter = 1;
+    this.sessionIdCounter = 1;
   }
 
   // User methods (from original)
@@ -145,6 +158,52 @@ export class MemStorage implements IStorage {
   
   async getAllTests(): Promise<TestFile[]> {
     return Array.from(this.testFiles.values());
+  }
+  
+  // Session methods
+  async createSession(session: InsertSession): Promise<Session> {
+    const id = this.sessionIdCounter++;
+    const now = new Date();
+    const newSession: Session = {
+      ...session,
+      id,
+      created_at: now,
+      updated_at: now
+    };
+    this.sessions.set(id, newSession);
+    return newSession;
+  }
+  
+  async updateSession(id: number, sessionUpdate: Partial<InsertSession>): Promise<Session> {
+    const session = await this.getSessionById(id);
+    if (!session) {
+      throw new Error(`Session with id ${id} not found`);
+    }
+    
+    const updatedSession: Session = {
+      ...session,
+      ...sessionUpdate,
+      id,
+      updated_at: new Date()
+    };
+    this.sessions.set(id, updatedSession);
+    return updatedSession;
+  }
+  
+  async getSessionById(id: number): Promise<Session | undefined> {
+    return this.sessions.get(id);
+  }
+  
+  async getAllSessions(): Promise<Session[]> {
+    return Array.from(this.sessions.values());
+  }
+  
+  async deleteSession(id: number): Promise<boolean> {
+    const exists = this.sessions.has(id);
+    if (exists) {
+      this.sessions.delete(id);
+    }
+    return exists;
   }
 }
 

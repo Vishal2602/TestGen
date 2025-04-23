@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -68,5 +68,27 @@ export type InsertCodeFile = z.infer<typeof insertCodeFileSchema>;
 export type Function = typeof functions.$inferSelect;
 export type InsertFunction = z.infer<typeof insertFunctionSchema>;
 
+// Sessions table for saving and loading test generation sessions
+export const sessions = pgTable("sessions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  files: jsonb("files").notNull(), // Array of UploadedFile objects
+  extractedFunctions: jsonb("extracted_functions"), // Array of ExtractedFunction objects
+  generatedTests: jsonb("generated_tests"), // Array of GeneratedTest objects
+  stats: jsonb("stats"), // Additional statistics about the session
+  created_at: timestamp("created_at").defaultNow().notNull(),
+  updated_at: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertSessionSchema = createInsertSchema(sessions).omit({
+  id: true,
+  created_at: true,
+  updated_at: true
+});
+
 export type TestFile = typeof testFiles.$inferSelect;
 export type InsertTestFile = z.infer<typeof insertTestFileSchema>;
+
+export type Session = typeof sessions.$inferSelect;
+export type InsertSession = z.infer<typeof insertSessionSchema>;

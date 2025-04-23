@@ -138,6 +138,125 @@ ${tests.map(test => `- ${test.testFileName}`).join('\n')}
       });
     }
   });
+  
+  // Session management endpoints
+  
+  // Create a new session
+  app.post('/api/sessions', async (req, res) => {
+    try {
+      const { name, description, files, extractedFunctions, generatedTests, stats } = req.body;
+      
+      if (!name) {
+        return res.status(400).json({ message: "Session name is required" });
+      }
+      
+      const session = await storage.createSession({
+        name,
+        description,
+        files: files || [],
+        extractedFunctions,
+        generatedTests,
+        stats
+      });
+      
+      return res.status(201).json(session);
+    } catch (error) {
+      console.error('Error creating session:', error);
+      return res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to create session" 
+      });
+    }
+  });
+  
+  // Get all sessions
+  app.get('/api/sessions', async (req, res) => {
+    try {
+      const sessions = await storage.getAllSessions();
+      return res.json(sessions);
+    } catch (error) {
+      console.error('Error getting sessions:', error);
+      return res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to get sessions" 
+      });
+    }
+  });
+  
+  // Get a session by ID
+  app.get('/api/sessions/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid session ID" });
+      }
+      
+      const session = await storage.getSessionById(id);
+      
+      if (!session) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      return res.json(session);
+    } catch (error) {
+      console.error('Error getting session:', error);
+      return res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to get session" 
+      });
+    }
+  });
+  
+  // Update a session
+  app.put('/api/sessions/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid session ID" });
+      }
+      
+      const { name, description, files, extractedFunctions, generatedTests, stats } = req.body;
+      
+      const session = await storage.updateSession(id, {
+        name,
+        description,
+        files,
+        extractedFunctions,
+        generatedTests,
+        stats
+      });
+      
+      return res.json(session);
+    } catch (error) {
+      console.error('Error updating session:', error);
+      return res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to update session" 
+      });
+    }
+  });
+  
+  // Delete a session
+  app.delete('/api/sessions/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid session ID" });
+      }
+      
+      const deleted = await storage.deleteSession(id);
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Session not found" });
+      }
+      
+      return res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      return res.status(500).json({ 
+        message: error instanceof Error ? error.message : "Failed to delete session" 
+      });
+    }
+  });
 
   const httpServer = createServer(app);
 
