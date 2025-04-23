@@ -2,6 +2,9 @@ import { pgTable, text, serial, integer, boolean, jsonb } from "drizzle-orm/pg-c
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Define AutomationType for test runner generation
+export type AutomationType = 'package_json' | 'shell_script' | 'github_actions' | 'dockerfile';
+
 // User schema remains from the original file
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),

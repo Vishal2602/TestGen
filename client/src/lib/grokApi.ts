@@ -34,3 +34,31 @@ export async function downloadTestPackage(): Promise<Blob> {
   
   return response.blob();
 }
+
+export async function downloadAutomationFile(
+  type: 'package_json' | 'shell_script' | 'github_actions' | 'dockerfile', 
+  projectName?: string,
+  nodeVersion?: string
+): Promise<Blob> {
+  let url = `/api/automation-file?type=${type}`;
+  
+  if (projectName) {
+    url += `&projectName=${encodeURIComponent(projectName)}`;
+  }
+  
+  if (nodeVersion) {
+    url += `&nodeVersion=${encodeURIComponent(nodeVersion)}`;
+  }
+  
+  const response = await fetch(url, {
+    method: 'GET',
+    credentials: 'include',
+  });
+  
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`${response.status}: ${text}`);
+  }
+  
+  return response.blob();
+}

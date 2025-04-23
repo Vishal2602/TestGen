@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
-import { AlertCircle, Code, FileText, Zap, Download, Loader2, Check } from 'lucide-react';
+import { 
+  AlertCircle, Code, FileText, Zap, Download, Loader2, Check,
+  FileJson, Terminal, Github, Box, Cloud, Settings
+} from 'lucide-react';
 import { FileDropzone } from '@/components/FileDropzone';
 import { FileCard } from '@/components/FileCard';
 import { GeneratedTestFile } from '@/components/GeneratedTestFile';
@@ -16,7 +19,7 @@ import {
   GeneratedTest,
   ExtractedFunction
 } from '@/lib/types';
-import { analyzeCode, generateTests, getTestGenerationStatus, downloadTestPackage } from '@/lib/grokApi';
+import { analyzeCode, generateTests, getTestGenerationStatus, downloadTestPackage, downloadAutomationFile } from '@/lib/grokApi';
 
 export default function Home() {
   const { toast } = useToast();
@@ -165,6 +168,59 @@ export default function Home() {
       });
     }
   });
+  
+  // Automation file download mutation
+  const automationMutation = useMutation({
+    mutationFn: (type: 'package_json' | 'shell_script' | 'github_actions' | 'dockerfile') => {
+      return downloadAutomationFile(type, 'test-runner', '18');
+    },
+    onSuccess: (blob, type) => {
+      // Define filename based on type
+      let filename = 'automation-file';
+      switch (type) {
+        case 'package_json': 
+          filename = 'package.json'; 
+          break;
+        case 'shell_script': 
+          filename = 'run-tests.sh'; 
+          break;
+        case 'github_actions': 
+          filename = 'github-workflow.yml'; 
+          break;
+        case 'dockerfile': 
+          filename = 'Dockerfile'; 
+          break;
+      }
+      
+      // Download the file
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Show success message
+      toast({
+        title: "Automation File Downloaded",
+        description: `${filename} has been downloaded successfully`
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Download Failed",
+        description: error instanceof Error ? error.message : "Failed to download automation file",
+        variant: "destructive"
+      });
+    }
+  });
+  
+  // Handle downloading automation files
+  const handleDownloadAutomation = (type: 'package_json' | 'shell_script' | 'github_actions' | 'dockerfile') => {
+    automationMutation.mutate(type);
+  };
 
   // Start processing
   const handleStartProcessing = () => {
