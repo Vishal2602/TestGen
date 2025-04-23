@@ -2,7 +2,7 @@ import OpenAI from "openai";
 
 const openai = new OpenAI({ 
   baseURL: "https://api.x.ai/v1", 
-  apiKey: process.env.XAI_API_KEY || "" 
+  apiKey: process.env.XAI_API_KEY || "xai-fZ9p1TatsyyWNwSwX9e2InJOnjyK4qKF3Bv4G39j0KKdAivmy9blpqhof5yAkPPFLfZQTcZvqNxGdR83" 
 });
 
 interface GrokTestGenerationParams {
